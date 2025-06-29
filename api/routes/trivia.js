@@ -3,6 +3,9 @@ const Question = require('../models/Question');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
 
+router.get('/debug', (_, res) => {
+  res.json({ message: 'API is alive and responding' });
+});
 // Root endpoint
 // GET /api/trivia/
 router.get('/', (req, res) => {
