@@ -1,1 +1,11 @@
-.vercel
+# dependencies
+**/node_modules/
+
+# client build output
+client/build/
+
+# Vercel local metadata
+.vercel/
+
+# local env files
+.env*
