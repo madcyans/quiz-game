@@ -13,11 +13,13 @@ if (process.env.NODE_ENV !== 'production') {
 app.use(express.json());
 
 // Cold-start Mongo
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => console.log('✔️ MongoDB connected'))
-  .catch(e => console.error(e));
-
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('✅ Mongo connected'))
+  .catch(err => {
+    console.error('❌ Mongo failed:', err);
+    return res.status(500).json({ error: 'DB connection failed' });
+  });
+  
 // Mount routers
 app.use('/api/auth',   require('./routes/auth'));
 app.use('/api/trivia', require('./routes/trivia'));
