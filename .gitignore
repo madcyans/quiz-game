@@ -8,4 +8,4 @@ client/build/
 .vercel/
 
 # local env files
-.env*
+.env*api/node_modules/
