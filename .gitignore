@@ -8,4 +8,7 @@ client/build/
 .vercel/
 
 # local env files
-.env*api/node_modules/
+.env*
+
+# ignore server deps so Vercel can install them
+api/node_modules/
