@@ -8,9 +8,17 @@ const cors     = require('cors');
 const app      = express();
 
 // Dev-only CORS
-if (process.env.NODE_ENV !== 'production') {
-  app.use(cors());
-}
+const allowedOrigins = [
+  'https://quiz-game-fawn-nine.vercel.app',
+  // Add other frontend domains here if needed (like a staging link)
+];
+
+app.use(cors({
+  origin: (origin, cb) => {
+    if (!origin || allowedOrigins.includes(origin)) cb(null, true);
+    else cb(new Error('Not allowed by CORS'));
+  }
+}));
 app.use(express.json());
 
 // Cold-start Mongo (don’t try to send a response here)
