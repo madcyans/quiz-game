@@ -1,6 +1,7 @@
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config();
 }
+
 const express  = require('express');
 const mongoose = require('mongoose');
 const cors     = require('cors');
@@ -12,18 +13,20 @@ if (process.env.NODE_ENV !== 'production') {
 }
 app.use(express.json());
 
-// Cold-start Mongo
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('✅ Mongo connected'))
-  .catch(err => {
-    console.error('❌ Mongo failed:', err);
-    return res.status(500).json({ error: 'DB connection failed' });
-  });
-  
+// Cold-start Mongo (don’t try to send a response here)
+mongoose.connect(process.env.MONGO_URI, { 
+    // optional options: useNewUrlParser, useUnifiedTopology, etc.
+  })
+  .then(() => console.log('✅ MongoDB connected'))
+  .catch(err => console.error('❌ MongoDB connection error:', err));
+
 // Mount routers
 app.use('/api/auth',   require('./routes/auth'));
 app.use('/api/trivia', require('./routes/trivia'));
 app.use('/api/users',  require('./routes/users'));
+
+// Health-check endpoint (optional, but handy)
+app.get('/api/ping', (req, res) => res.json({ status: 'pong' }));
 
 // Export for Vercel
 module.exports = app;
