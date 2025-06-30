@@ -35,7 +35,12 @@ export default function SignUp() {
           className="block w-full p-2 mb-3 border rounded"
         />
       ))}
-      <button className="w-full bg-blue-500 text-white p-2 rounded mb-3">Register</button>
+      <button
+        type="submit"
+        className="w-full bg-blue-500 text-white p-2 rounded mb-3"
+      >
+        Register
+      </button>
       <Link to="/login" className="text-blue-600 text-sm hover:underline block text-center">
         Already have an account? Back to Login
       </Link>
