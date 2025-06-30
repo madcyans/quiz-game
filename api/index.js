@@ -1,4 +1,3 @@
-// api/index.js
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config();
 }
@@ -8,21 +7,16 @@ const mongoose = require('mongoose');
 const cors     = require('cors');
 const app      = express();
 
-// ⚠️ TEMPORARY: Allow all origins while debugging
-app.use(cors());
-app.options('*', cors());
-
-// CORS: allow your Vercel front-end + any others you need
+// ✅ CORS — allow Vercel frontend and test tools
 const allowedOrigins = [
-  'https://quiz-game-mauve-three.vercel.app',  // ← your current Vercel URL
-  'https://quiz-game-fawn-nine.vercel.app',    // ← any old/staging URL
-  'https://quiz-game-d89x.onrender.com'        // ← your Render API itself (for tools/tests)
+  'https://quiz-game-mauve-three.vercel.app',
+  'https://quiz-game-fawn-nine.vercel.app',
+  'https://quiz-game-d89x.onrender.com'
 ];
 
-app.use(cors({
+const corsOptions = {
   origin: (origin, callback) => {
-    if (!origin) return callback(null, true);            // allow non-browser calls
-    if (allowedOrigins.includes(origin)) {
+    if (!origin || allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
     callback(new Error(`CORS blocked: ${origin}`));
@@ -30,30 +24,31 @@ app.use(cors({
   methods: ['GET','POST','PUT','DELETE','OPTIONS'],
   allowedHeaders: ['Content-Type','Authorization'],
   credentials: true
-}));
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
+
+// 🛠 Debug: log incoming origins
 app.use((req, res, next) => {
-  console.log('🌐 Incoming request from Origin:', req.headers.origin);
+  console.log('🌐 Origin:', req.headers.origin, '→', req.method, req.originalUrl);
   next();
 });
 
-// IMPORTANT: respond to preflight RIGHT AWAY
-app.options('*', cors());
-
-// Body parser
 app.use(express.json());
 
-// Mongo boot
+// 🔌 MongoDB
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log('✅ MongoDB connected'))
   .catch(err => console.error('❌ MongoDB connection error:', err));
 
-// Routes
+// 🧭 Routes
 app.use('/api/auth',   require('./routes/auth'));
 app.use('/api/trivia', require('./routes/trivia'));
 app.use('/api/users',  require('./routes/users'));
 
-// Health-check
+// ⚡ Health check
 app.get('/api/ping', (_req, res) => res.json({ status: 'pong' }));
 
 module.exports = app;
