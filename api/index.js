@@ -8,6 +8,10 @@ const mongoose = require('mongoose');
 const cors     = require('cors');
 const app      = express();
 
+// ⚠️ TEMPORARY: Allow all origins while debugging
+app.use(cors());
+app.options('*', cors());
+
 // CORS: allow your Vercel front-end + any others you need
 const allowedOrigins = [
   'https://quiz-game-mauve-three.vercel.app',  // ← your current Vercel URL
