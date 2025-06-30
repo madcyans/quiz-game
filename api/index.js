@@ -27,6 +27,10 @@ app.use(cors({
   allowedHeaders: ['Content-Type','Authorization'],
   credentials: true
 }));
+app.use((req, res, next) => {
+  console.log('🌐 Incoming request from Origin:', req.headers.origin);
+  next();
+});
 
 // IMPORTANT: respond to preflight RIGHT AWAY
 app.options('*', cors());
