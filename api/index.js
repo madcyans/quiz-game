@@ -1,3 +1,4 @@
+// api/index.js
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config();
 }
@@ -7,42 +8,44 @@ const mongoose = require('mongoose');
 const cors     = require('cors');
 const app      = express();
 
-// Dev-only CORS
+// CORS: allow your Vercel front-end + any others you need
 const allowedOrigins = [
-  'https://quiz-game-fawn-nine.vercel.app',
-  // Add other frontend domains here if needed (like a staging link)
+  'https://quiz-game-mauve-three.vercel.app',  // ← your current Vercel URL
+  'https://quiz-game-fawn-nine.vercel.app',    // ← any old/staging URL
+  'https://quiz-game-d89x.onrender.com'        // ← your Render API itself (for tools/tests)
 ];
 
 app.use(cors({
-  origin: (origin, cb) => {
-    if (!origin || allowedOrigins.includes(origin)) cb(null, true);
-    else cb(new Error('Not allowed by CORS'));
-  }
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);            // allow non-browser calls
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    callback(new Error(`CORS blocked: ${origin}`));
+  },
+  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type','Authorization'],
+  credentials: true
 }));
+
+// IMPORTANT: respond to preflight RIGHT AWAY
+app.options('*', cors());
+
+// Body parser
 app.use(express.json());
 
-// Cold-start Mongo (don’t try to send a response here)
-mongoose.connect(process.env.MONGO_URI, { 
-    // optional options: useNewUrlParser, useUnifiedTopology, etc.
-  })
+// Mongo boot
+mongoose
+  .connect(process.env.MONGO_URI)
   .then(() => console.log('✅ MongoDB connected'))
   .catch(err => console.error('❌ MongoDB connection error:', err));
 
-// Mount routers
+// Routes
 app.use('/api/auth',   require('./routes/auth'));
 app.use('/api/trivia', require('./routes/trivia'));
 app.use('/api/users',  require('./routes/users'));
 
-// Health-check endpoint (optional, but handy)
-app.get('/api/ping', (req, res) => res.json({ status: 'pong' }));
+// Health-check
+app.get('/api/ping', (_req, res) => res.json({ status: 'pong' }));
 
-// Export for Vercel
 module.exports = app;
-
-// Local server
-if (require.main === module) {
-  const port = process.env.PORT || 4000;
-  app.listen(port, () =>
-    console.log(`🚀 API listening on http://localhost:${port}`)
-  );
-}
